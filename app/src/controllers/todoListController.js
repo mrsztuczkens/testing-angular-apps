@@ -3,9 +3,9 @@
 	
 	angular.module("todoApp").controller("todoListController", todoListController);
 		
-	todoListController.$inject = ['$filter', 'todos'];
+	todoListController.$inject = ['$filter', 'todoService'];
 		
-	function todoListController($filter, todos){
+	function todoListController($filter, todoService){
 		
 		var vm = this;
 		
@@ -16,7 +16,7 @@
 		vm.editing = false;
 		vm.save = save;
 		vm.select = select;
-		vm.todos = todos || [];
+		vm.todos = todoService.getAll() || [];
 		
 		init();
 		
@@ -49,6 +49,7 @@
 					break;
 				}
 			}
+			todoService.save(vm.current);
 			vm.editing = false;
 		}
 		

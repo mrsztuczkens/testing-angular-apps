@@ -6,12 +6,21 @@ describe('todoListController', function(){
 		{ id: 2, title: 'Todo #2', description: 'Description of todo 2' },	
 	]; 
 	
+	var todoService;
+	
+	beforeEach(function(){
+		todoService = {
+			getAll: sinon.spy(function(){ return angular.copy(testTodos); }),
+			save: sinon.spy(function(todo){})
+		};
+	});
+	
 	beforeEach(function(){
 		angular.mock.module('todoApp'); //initialize our module
 		
 		angular.mock.inject(function(_$controller_){
 			$controller = _$controller_('todoListController', {
-				todos: angular.copy(testTodos)
+				todoService: todoService
 			}); //create an instance of the todoListController
 		});
 	});
@@ -21,6 +30,9 @@ describe('todoListController', function(){
 		chai.expect($controller.todos).to.have.length(testTodos.length, 'Should have all the todos that were passed');
 		chai.expect($controller.currentId).to.equal(1, 'currentId should point to the first todo');
 		chai.expect($controller.current).to.deep.equal(testTodos[0], "Current should hold the first todo");
+		
+		chai.expect(todoService.getAll.called).to.be.true;
+		chai.expect(todoService.getAll.calledOnce).to.be.true;
 	});
 	
 	describe('select item', function(){
@@ -58,6 +70,8 @@ describe('todoListController', function(){
 				it('should update todos and set editing to false after saving', function(){
 					$controller.save();
 					
+					chai.expect(todoService.save.called).to.be.true;
+					chai.expect(todoService.save.calledWith(updatedTodo)).to.be.true;
 					chai.expect($controller.editing).to.be.false;
 					chai.expect($controller.todos[1]).to.deep.equal(updatedTodo);
 				});
