@@ -1,16 +1,23 @@
 describe('todoListController', function(){
 	
-	var $controller;
+	var $controller,
+		$q,
+		$rootScope;
+		
 	var testTodos = [
 		{ id: 1, title: 'Todo #1', description: 'Description of todo 1' },	
 		{ id: 2, title: 'Todo #2', description: 'Description of todo 2' },	
 	]; 
 	
 	var todoService;
+	var getAllPromise;
 	
 	beforeEach(function(){
 		todoService = {
-			getAll: sinon.spy(function(){ return angular.copy(testTodos); }),
+			getAll: sinon.spy(function(){ 
+				getAllPromise = $q.defer();
+				return getAllPromise.promise;
+			}),
 			save: sinon.spy(function(todo){})
 		};
 	});
@@ -18,14 +25,20 @@ describe('todoListController', function(){
 	beforeEach(function(){
 		angular.mock.module('todoApp'); //initialize our module
 		
-		angular.mock.inject(function(_$controller_){
+		angular.mock.inject(function(_$controller_, _$q_, _$rootScope_){
+			$q = _$q_;
+			$rootScope = _$rootScope_;
 			$controller = _$controller_('todoListController', {
 				todoService: todoService
 			}); //create an instance of the todoListController
 		});
+		
+		getAllPromise.resolve(angular.copy(testTodos));
+		$rootScope.$digest();
 	});
 	
 	it('should initialize everything', function(){
+		
 		chai.expect($controller.editing).to.be.false;
 		chai.expect($controller.todos).to.have.length(testTodos.length, 'Should have all the todos that were passed');
 		chai.expect($controller.currentId).to.equal(1, 'currentId should point to the first todo');

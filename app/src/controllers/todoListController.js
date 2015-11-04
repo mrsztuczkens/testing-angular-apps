@@ -16,7 +16,7 @@
 		vm.editing = false;
 		vm.save = save;
 		vm.select = select;
-		vm.todos = todoService.getAll() || [];
+		vm.todos = [];
 		
 		init();
 		
@@ -33,10 +33,7 @@
 		}
 		
 		function init() {
-			if (vm.todos.length > 0){
-				vm.current = angular.copy(vm.todos[0]);
-				vm.currentId = vm.current.id;
-			}
+			todoService.getAll().then(_gotTodos);
 		}
 		
 		function save(){
@@ -61,6 +58,14 @@
 			} else {
 				vm.current = {};
 				vm.currentId = -1;
+			}
+		}
+		
+		function _gotTodos(todos){
+			vm.todos = todos;
+			if (vm.todos.length > 0){
+				vm.current = angular.copy(vm.todos[0]);
+				vm.currentId = vm.current.id;
 			}
 		}
 	}
